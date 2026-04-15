@@ -1,0 +1,25 @@
+openapi: 3.0.3
+info:
+  title: Fabric Token SDK Modernized API
+  version: 2.0.0
+paths:
+  /token/issue:
+    post:
+      summary: Issue tokens
+      responses: { '200': { description: OK } }
+  /token/transfer:
+    post:
+      summary: Transfer tokens
+      responses: { '200': { description: OK } }
+  /token/split:
+    post:
+      summary: Split UTXO
+      responses: { '200': { description: OK } }
+  /token/merge:
+    post:
+      summary: Merge UTXOs
+      responses: { '200': { description: OK } }
+  /wallet/balance:
+    get:
+      summary: Get balance
+      responses: { '200': { description: OK } }
