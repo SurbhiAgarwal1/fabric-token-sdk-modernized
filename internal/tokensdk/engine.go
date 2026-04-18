@@ -3,6 +3,7 @@ package tokensdk
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -23,14 +24,34 @@ type OpMetadata struct {
 	FabricTime     time.Duration
 	TotalLatency   time.Duration
 	ProofSizeBytes int
+	Details        string
 }
 
 type Engine struct {
-	ID string
+	ID    string
+	mu    sync.RWMutex
+	state map[string]int
 }
 
 func NewEngine(id string) *Engine {
-	return &Engine{ID: id}
+	return &Engine{
+		ID: id,
+		state: map[string]int{
+			"USD-Token": 12500,
+			"EUR-Token": 500,
+		},
+	}
+}
+
+func (e *Engine) GetBalance() map[string]int {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	// Return a copy
+	res := make(map[string]int)
+	for k, v := range e.state {
+		res[k] = v
+	}
+	return res
 }
 
 func (e *Engine) ExecuteSimulatedFlow(action TokenAction, amount int) (*OpMetadata, error) {
@@ -39,7 +60,7 @@ func (e *Engine) ExecuteSimulatedFlow(action TokenAction, amount int) (*OpMetada
 	start := time.Now()
 	zkpBase := 50
 	if action == Transfer || action == Split {
-		zkpBase = 120 
+		zkpBase = 120
 	}
 	time.Sleep(time.Duration(zkpBase+rand.Intn(50)) * time.Millisecond)
 	zkpTime := time.Since(start)
@@ -49,10 +70,31 @@ func (e *Engine) ExecuteSimulatedFlow(action TokenAction, amount int) (*OpMetada
 	p2pTime := time.Since(startP2P)
 
 	startFabric := time.Now()
-	time.Sleep(time.Duration(200+rand.Intn(100)) * time.Millisecond) 
+	time.Sleep(time.Duration(200+rand.Intn(100)) * time.Millisecond)
 	fabricTime := time.Since(startFabric)
 
 	total := zkpTime + p2pTime + fabricTime
+
+	// Update state to make the prototype feel real
+	e.mu.Lock()
+	details := ""
+	switch action {
+	case Issue:
+		e.state["USD-Token"] += amount
+		details = fmt.Sprintf("Issued %d USD-Token", amount)
+	case Transfer:
+		if e.state["USD-Token"] >= amount {
+			e.state["USD-Token"] -= amount
+			details = fmt.Sprintf("Transferred %d USD-Token (Privacy preserved)", amount)
+		} else {
+			details = "Transfer failed: Insufficient funds"
+		}
+	case Split:
+		details = "Split UTXO completed (no net balance change)"
+	case Merge:
+		details = "Merged UTXOs (no net balance change)"
+	}
+	e.mu.Unlock()
 
 	meta := &OpMetadata{
 		Action:         action,
@@ -61,8 +103,9 @@ func (e *Engine) ExecuteSimulatedFlow(action TokenAction, amount int) (*OpMetada
 		FabricTime:     fabricTime,
 		TotalLatency:   total,
 		ProofSizeBytes: 1024 + rand.Intn(2048),
+		Details:        details,
 	}
 
-	fmt.Printf("[%s] %s flow COMPLETED in %v\n", e.ID, action, total)
+	fmt.Printf("[%s] %s flow COMPLETED in %v: %s\n", e.ID, action, total, details)
 	return meta, nil
 }
