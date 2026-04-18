@@ -3,60 +3,59 @@
 [![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go)](https://golang.org)
 [![Fabric Token SDK](https://img.shields.io/badge/Token%20SDK-v0.8.1-blueviolet)](https://github.com/hyperledger/fabric-token-sdk)
 [![Fabric Smart Client](https://img.shields.io/badge/FSC-v0.10.0-blue)](https://github.com/hyperledger/fabric-smart-client)
-[![Docker Support](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)](https://www.docker.com/)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-22c55e?style=flat&logo=vercel)](https://fabric-token-sdk-modernized.vercel.app/frontend/)
 
 An updated, modernized implementation built to orchestrate internal logic for the Hyperledger Fabric Token SDK. This repository aligns native token operations with the newest stable driver specifications (v0.8.1).
 
-Instead of spinning up heavy CouchDB/Kafka ledgers purely to test UI/API orchestration, this package utilizes a **Thread-Safe Simulated Engine Design**, allowing lightning-fast local development and architecture validation prior to on-chain deployment.
+## 🚀 Live Implementation
+**Dashboard Preview:** [https://fabric-token-sdk-modernized.vercel.app/frontend/](https://fabric-token-sdk-modernized.vercel.app/frontend/)
 
 ---
 
-## 🎯 Architecture & Innovations
+## 🎯 Problem Statement & Solution
+The current official Hyperledger samples are often pinned to legacy versions (v0.3.0). This project bridges that gap by:
+1. **Dependency Modernization:** Full migration to **Token SDK v0.8.1** and **FSC v0.10.0**.
+2. **Persistence & Concurrency:** Implementing a stateful backend using memory-safe `sync.RWMutex` locks, ensuring that even in a simulated environment, data races are prevented during concurrent UTXO splits or merges.
+3. **ZKP Observability:** Real-time logging of **Zero-Knowledge Proof (ZKATdlog)** generation latency and proof sizing.
 
-- **Refactored Dependency Baselines:** Escaped the legacy `v0.3.0` bindings to orchestrate Zero-Knowledge Proof (ZKP) generations compatible with `FSC v0.10.0`.
-- **Complete UTXO Operation Parity:** Adds mature robust support for `Issue`, `Transfer`, `Split`, and `Merge`—actions severely under-documented in default samples.
-- **Concurrent Memory Simulation:** Incorporates standard `sync.RWMutex` maps. Prevents ledger data races when rapidly firing concurrent UTXO Split/Merge commands from multiple clients.
-- **DevOps Ready:** Delivered with an optimized Multi-Stage Dockerfile enabling zero-dependency runtime environments.
-
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```text
 .
-├── cmd/                # Entry point (main.go)
+├── cmd/                # Server entry point with CLI flag handling
 ├── internal/
-│   ├── rest/           # Custom CORS-enabled Http router and Handlers
-│   └── tokensdk/       # Thread-safe ZKATdlog core simulation engine
-├── frontend/           # Vanilla JS dashboard for workflow visualization
-├── docker-compose.yml  # Compose networking
-└── Dockerfile          # Multi-stage optimized Alpine builder
+│   ├── rest/           # Custom API Router with CORS and state-mapped handlers
+│   └── tokensdk/       # Core Engine: Thread-safe vault tracking & ZKP simulation
+├── frontend/           # Dashboards styled with the official Sphinx/ReadTheDocs theme
+├── Dockerfile          # Multi-stage optimized build (Alpine linux binary)
+└── docker-compose.yml  # One-command full stack orchestration
 ```
 
-## 🚀 Quickstart (Deployment)
+## 🛠️ Technical Implementation Details
 
-You can run this application locally using either Docker (recommended for consistency) or natively via Go.
+### **1. Backend Engine (Go)**
+Located in `internal/tokensdk/engine.go`, the engine tracks `USD-Token` and `EUR-Token` balances. It performs validity checks (spending validation) before simulating the Pedersen Commitment generation. It proves architectural readiness for real Fabric integration by handling:
+- **State Locking:** Uses `sync.RWMutex` to ensure integrity across concurrent REST requests.
+- **Duration Benchmarking:** Returns high-precision `time.Duration` metrics for cryptographic overhead analysis.
 
-### Option A: Docker (Preferred)
-Requires zero configuration. Instantly builds the optimized Alpine binaries and exposes the port.
+### **2. Frontend Console**
+Styled to match the **Official Hyperledger Fabric Documentation**, the dashboard provides:
+- **Live Metrics:** Dynamic ZKP generation and commit latency tracking.
+- **Activity Logs:** A technical console window that logs flow-level events (Issue, Transfer, Split).
+- **Hybrid Demo Engine:** For serverless environments (like Vercel), the console includes an auto-detecting fallback engine that simulates logic directly in the browser.
 
+## 🚀 Getting Started
+
+### **Option 1: Docker (Recommended)**
 ```bash
-docker-compose up --build -d
+docker-compose up --build
 ```
-Access the dashboard at: `http://localhost:8080`
+The dashboard will be available at `http://localhost:8080`.
 
-### Option B: Native Go
-Ensure Go 1.22+ is installed on your machine.
-
+### **Option 2: Native Go**
 ```bash
 go run cmd/main.go -mode server
 ```
-Access the dashboard at: `http://localhost:8080`
-
-## 🧠 Technical Workflow (Under The Hood)
-When a `TRANSFER` request is initiated from the client dashboard:
-1. The `rest/server` triggers `enableCORS` and injects contextual bounds.
-2. The `tokensdk.Engine` calculates a simulated latency map matching the Pedersen Commitment delays.
-3. The internal Map asserts an `RWMutex` lock, verifies available vault balances to avoid overdrafting, processes simulated cryptographic deductions, and unlocks.
-4. An `OpMetadata` struct is serialized back to the client detailing proof size and node latency.
 
 ---
-*Built to serve as an extensible template for Enterprise Hyperledger prototyping.*
+*Built as a high-fidelity prototype for Hyperledger Fabric architectural validation.*
