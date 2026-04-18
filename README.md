@@ -4,63 +4,62 @@
 [![Fabric Token SDK](https://img.shields.io/badge/Token%20SDK-v0.8.1-blueviolet)](https://github.com/hyperledger/fabric-token-sdk)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-22c55e?style=flat&logo=vercel)](https://fabric-token-sdk-modernized.vercel.app/frontend/)
 
-## 🌟 What is this Project?
-This project is an advanced, user-friendly prototype for managing **Digital Assets** (Tokens) on a blockchain using the **Hyperledger Fabric Token SDK**.
+## Project Overview
+This project is an architectural prototype for managing digital assets (Tokens) using the Hyperledger Fabric Token SDK. It provides a structured backend environment and a web-based management console to orchestrate token lifecycle events.
 
-In many blockchain systems, managing tokens (like digital cash or assets) is complex and lacks a visual interface. This project provides a **Professional Management Console** and a **Modern Backend** that allows you to Issue, Transfer, and Split tokens while maintaining privacy and high performance.
+The system is built to demonstrate modern tokenization patterns including automated issuance, privacy-preserving transfers, and unspent transaction output (UTXO) management.
 
-### **The "Why":**
-Most examples for the Token SDK are outdated (stuck on v0.3.0). This repository provides a **fully modernized version (v0.8.1)** that is documented clearly so that anyone—from a beginner to a senior mentor—can understand how token orchestration works.
-
----
-
-## 🚀 Live Demo
-**Interactive Dashboard:** [https://fabric-token-sdk-modernized.vercel.app/frontend/](https://fabric-token-sdk-modernized.vercel.app/frontend/)  
-*(No installation required! See the architecture in action immediately.)*
+### Motivation
+Most existing Hyperledger Fabric Token SDK samples are pinned to legacy versions (v0.3.0). This repository provides a modernized implementation aligned with Token SDK v0.8.1 and Fabric Smart Client (FSC) v0.10.0, providing a stable baseline for enterprise-grade development.
 
 ---
 
-## ✨ Key Features
-
-- **Official Theme:** The dashboard is custom-styled to match the official **Hyperledger Fabric** technical documentation for a seamless enterprise feel.
-- **Privacy-First (ZKATdlog):** Uses Zero-Knowledge Proof (ZKP) technology to simulate private transactions where the amount and owner are hidden from the public eye.
-- **Smart Concurrency:** Built with advanced Go logic (`sync.RWMutex`) to handle multiple transactions safely without data errors.
-- **Docker Ready:** Includes a `Dockerfile` and `docker-compose.yml` so you can launch the entire project with a single command.
+## Deployment Status
+**Live Dashboard Preview:** [https://fabric-token-sdk-modernized.vercel.app/frontend/](https://fabric-token-sdk-modernized.vercel.app/frontend/)
 
 ---
 
-## 🎮 How to use the Dashboard
-Once the app is running, use the **Quick Actions** panel:
-1. **Issue Assets:** Add fresh tokens (e.g., USD-Token) into the system.
-2. **Privacy Transfer:** Send tokens to another party. The dashboard will show you the **ZKP Generation Time**—the time it took to create the privacy proof.
-3. **Split/Merge:** Organize your token "UTXOs" (unspent outputs) for better efficiency.
+## Core Features
+
+- **Standard Documentation Theme:** The dashboard UI follows the official Hyperledger Fabric Sphinx/ReadTheDocs style for a professional, consistent experience.
+- **Privacy Preservation (ZKATdlog):** Implements Zero-Knowledge Proof (ZKP) logic to simulate private transacting where asset amounts and ownership remain confidential.
+- **Concurrent State Management:** Utilizes Go standard library concurrency primitives (sync.RWMutex) to ensure the integrity of the in-memory ledger across multiple client requests.
+- **Containerized Build:** Optimized multi-stage Dockerfile included for standardized deployment across different environments.
 
 ---
 
-## 📂 Project Structure (For Developers)
-
-- `/cmd`: The main entry point that starts the server.
-- `/internal/tokensdk`: The **Core Brain** of the project. This is where the token logic and privacy simulations live.
-- `/internal/rest`: The **API Layers** that connect the frontend to the backend engine.
-- `/frontend`: The **User Interface** (HTML/JS/CSS).
+## Dashboard Usage Guide
+The management console provides access to core token operations:
+1. **Issue Assets:** Generates fresh assets into the system vault.
+2. **Privacy Transfer:** Moves assets between participants. The system logs the ZKP generation time and proof size for each transaction to monitor performance overhead.
+3. **UTXO Management (Split/Merge):** Allows for the optimization of asset outputs for future transacting.
 
 ---
 
-## 🛠️ Setup Instructions
+## Project Structure
 
-### **1. Using Docker (Instant Setup)**
-If you have Docker installed, simply run:
+- `/cmd`: Server entry point and CLI configuration handler.
+- `/internal/tokensdk`: Core orchestration engine, including balance tracking and ZKP latency simulation.
+- `/internal/rest`: HTTP router and service handlers with CORS support.
+- `/frontend`: Web management console (HTML/JavaScript/CSS).
+
+---
+
+## Setup and Installation
+
+### Option 1: Docker
+Run the following command to build and launch the application:
 ```bash
 docker-compose up --build
 ```
-Open `http://localhost:8080` in your browser.
+Access the console at: `http://localhost:8080`
 
-### **2. Using Go (Manual Setup)**
-Ensure you have Go 1.22+ installed:
+### Option 2: Native Go
+Ensure Go 1.22+ is installed:
 ```bash
 go run cmd/main.go -mode server
 ```
-Open `http://localhost:8080` in your browser.
+Access the console at: `http://localhost:8080`
 
 ---
-*Developed as a high-fidelity architectural prototype to modernize the Hyperledger Fabric Token SDK ecosystem.*
+*High-fidelity architectural prototype for Hyperledger Fabric Token SDK expansion.*
