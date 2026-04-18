@@ -3,83 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fabric Token SDK | Playground 2.0</title>
+    <title>Token SDK Console</title>
     <link rel="stylesheet" href="css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <nav class="sidebar">
-            <div class="logo">
-                <span class="logo-icon">💠</span>
-                <span class="logo-text">TokenSDK 2.0</span>
+    <div class="navbar">
+        <div class="brand">Fabric Token Console</div>
+        <div class="user-info">Node: Modernized-FSC <span class="badge">v0.8.1</span></div>
+    </div>
+
+    <div class="container">
+        <div class="flex-row">
+            <div class="panel">
+                <h2>Balances</h2>
+                <div class="balance-grid">
+                    <div class="balance-card">
+                        <span class="label">USD-Token</span>
+                        <span id="usd-balance" class="value">-</span>
+                    </div>
+                    <div class="balance-card">
+                        <span class="label">EUR-Token</span>
+                        <span id="eur-balance" class="value">-</span>
+                    </div>
+                </div>
             </div>
-            <ul class="nav-links">
-                <li class="active"><a href="#">Dashboard</a></li>
-                <li><a href="#">Transactions</a></li>
-                <li><a href="#">Audit Node</a></li>
-                <li><a href="#">Settings</a></li>
-            </ul>
-        </nav>
 
-        <main class="content">
-            <header>
-                <h1>Developer Sandbox</h1>
-                <div class="node-status">
-                    <span class="status-dot online"></span>
-                    Modernized-FSC-Node: Online
+            <div class="panel">
+                <h2>Operations</h2>
+                <div class="actions-grid">
+                    <button onclick="triggerFlow('issue')" class="btn btn-primary" id="btn-issue">Issue Assets</button>
+                    <button onclick="triggerFlow('transfer')" class="btn" id="btn-transfer">Transfer</button>
+                    <button onclick="triggerFlow('split')" class="btn" id="btn-split">Split</button>
+                    <button onclick="triggerFlow('merge')" class="btn" id="btn-merge">Merge</button>
                 </div>
-            </header>
+                <div class="progress-wrapper">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+        </div>
 
-            <section class="overview-cards">
-                <div class="card glass">
-                    <h3>USD-Token Balance</h3>
-                    <p id="usd-balance" class="balance">$ ...</p>
-                    <span class="badge">Privacy Enabled</span>
-                </div>
-                <div class="card glass">
-                    <h3>EUR-Token Balance</h3>
-                    <p id="eur-balance" class="balance">€ ...</p>
-                    <span class="badge">ZKATdlog Active</span>
-                </div>
-            </section>
+        <div class="flex-row">
+            <div class="panel">
+                <h2>Metrics</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>ZKP Gen</th>
+                            <th>Commit</th>
+                            <th>Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Latest Tx</td>
+                            <td id="zkp-time">---</td>
+                            <td id="fabric-time">---</td>
+                            <td id="proof-size">---</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-            <section class="actions-section">
-                <div class="card action-card glass">
-                    <h2>Core Token Flows</h2>
-                    <div class="button-grid">
-                        <button onclick="triggerFlow('issue')" class="btn primary">Issue Tokens</button>
-                        <button onclick="triggerFlow('transfer')" class="btn secondary">Privacy Transfer</button>
-                        <button onclick="triggerFlow('split')" class="btn outline">Split UTXO</button>
-                        <button onclick="triggerFlow('merge')" class="btn outline">Merge UTXOs</button>
-                    </div>
+            <div class="panel">
+                <h2>Logs</h2>
+                <div id="logs" class="log-view">
+                    <p class="log-entry system">> Ready.</p>
                 </div>
-
-                <div class="card perf-card glass">
-                    <h2>ZKP Performance Monitor</h2>
-                    <div class="latency-display">
-                        <div class="stat">
-                            <label>ZKP Proof Gen</label>
-                            <span id="zkp-time">0ms</span>
-                        </div>
-                        <div class="stat">
-                            <label>Fabric Commit</label>
-                            <span id="fabric-time">0ms</span>
-                        </div>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div id="progress-bar" class="progress-bar"></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="log-section card glass">
-                <h2>Real-time Audit Logs</h2>
-                <div id="logs" class="log-viewer">
-                    <p class="log-entry">Waiting for transaction initiation...</p>
-                </div>
-            </section>
-        </main>
+            </div>
+        </div>
     </div>
     <script src="js/app.js"></script>
 </body>
