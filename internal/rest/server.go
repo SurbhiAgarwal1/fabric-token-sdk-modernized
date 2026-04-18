@@ -2,9 +2,9 @@ package rest
 
 import (
 	"encoding/json"
+	"fabric-token-sdk-modernized/internal/tokensdk"
 	"fmt"
 	"net/http"
-	"fabric-token-sdk-modernized/internal/tokensdk"
 )
 
 type Server struct {
@@ -25,7 +25,12 @@ func (s *Server) Start(port int) {
 	mux.HandleFunc("/token/merge", s.enableCORS(s.handleMerge))
 	mux.HandleFunc("/wallet/balance", s.enableCORS(s.handleBalance))
 
+	// Serve Frontend Static Files
+	fs := http.FileServer(http.Dir("./frontend"))
+	mux.Handle("/", fs)
+
 	fmt.Printf("Fabric Token SDK Modernized API starting on :%d\n", port)
+	fmt.Printf("Dashboard available at: http://localhost:%d\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
 }
 
@@ -42,7 +47,7 @@ func (s *Server) enableCORS(h http.HandlerFunc) http.HandlerFunc {
 }
 
 func (s *Server) handleIssue(w http.ResponseWriter, r *http.Request) {
-	meta, _ := s.Engine.ExecuteSimulatedFlow(tokensdk.Issue, 1000)
+	meta, _ := s.Engine.ExecuteSimulatedFlow(tokensdk.Issue, 1000) // issue 1000 dynamically
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(meta)
 }
@@ -66,10 +71,7 @@ func (s *Server) handleMerge(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleBalance(w http.ResponseWriter, r *http.Request) {
-	balance := map[string]int{
-		"USD-Token": 12500,
-		"EUR-Token": 500,
-	}
+	balance := s.Engine.GetBalance()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(balance)
 }
