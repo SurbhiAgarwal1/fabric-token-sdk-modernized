@@ -15,7 +15,7 @@ Most existing Hyperledger Fabric Token SDK samples are pinned to legacy versions
 ---
 
 ## Deployment Status
-**Live Dashboard Preview:** https://fabric-token-sdk-modernized.vercel.app/)
+**Live Dashboard Preview:** https://fabric-token-sdk-modernized.vercel.app/ 
 
 ---
 
