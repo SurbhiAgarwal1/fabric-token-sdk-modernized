@@ -3,73 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token SDK Console</title>
+    <title>Fabric Token SDK - Advanced Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="navbar">
-        <div class="brand">Fabric Token Console</div>
-        <div class="user-info">Node: Modernized-FSC <span class="badge">v0.8.1</span></div>
+        <div class="brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            Fabric Token SDK
+        </div>
+        <div class="controls">
+            <div class="account-selector" id="account-selector-container">
+                <label>Account:</label>
+                <select id="account-select" onchange="switchAccount()"></select>
+            </div>
+            <div class="role-selector">
+                <label>Role:</label>
+                <select id="role-select" onchange="switchRole()">
+                    <option value="owner">Owner</option>
+                    <option value="issuer">Issuer</option>
+                    <option value="auditor">Auditor</option>
+                </select>
+            </div>
+        </div>
     </div>
 
     <div class="container">
-        <div class="flex-row">
+        <!-- ISSUER VIEW -->
+        <div id="view-issuer" class="role-view">
             <div class="panel">
-                <h2>Balances</h2>
-                <div class="balance-grid">
-                    <div class="balance-card">
-                        <span class="label">USD-Token</span>
-                        <span id="usd-balance" class="value">-</span>
-                    </div>
-                    <div class="balance-card">
-                        <span class="label">EUR-Token</span>
-                        <span id="eur-balance" class="value">-</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel">
-                <h2>Operations</h2>
+                <h2>Issuer Operations</h2>
                 <div class="actions-grid">
-                    <button onclick="triggerFlow('issue')" class="btn btn-primary" id="btn-issue">Issue Assets</button>
-                    <button onclick="triggerFlow('transfer')" class="btn" id="btn-transfer">Transfer</button>
-                    <button onclick="triggerFlow('split')" class="btn" id="btn-split">Split</button>
-                    <button onclick="triggerFlow('merge')" class="btn" id="btn-merge">Merge</button>
-                </div>
-                <div class="progress-wrapper">
-                    <div id="progress-bar" class="progress-bar"></div>
+                    <input type="number" id="issue-amount" placeholder="Amount" value="1000">
+                    <select id="issue-type">
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                    <input type="text" id="issue-recipient" placeholder="Recipient (e.g. Alice)" value="Alice">
+                    <button class="btn btn-primary" onclick="handleIssue()">Issue Tokens</button>
                 </div>
             </div>
         </div>
 
-        <div class="flex-row">
-            <div class="panel">
-                <h2>Metrics</h2>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Operation</th>
-                            <th>ZKP Gen</th>
-                            <th>Commit</th>
-                            <th>Size</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Latest Tx</td>
-                            <td id="zkp-time">---</td>
-                            <td id="fabric-time">---</td>
-                            <td id="proof-size">---</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- OWNER VIEW -->
+        <div id="view-owner" class="role-view">
+            <div class="flex-row">
+                <div class="panel half">
+                    <h2>Balances</h2>
+                    <div class="balance-grid" id="balance-grid">
+                        <!-- Dynamic balances -->
+                    </div>
+                </div>
+                <div class="panel half">
+                    <h2>Transfer Tokens</h2>
+                    <div class="actions-grid">
+                        <input type="number" id="transfer-amount" placeholder="Amount" value="100">
+                        <select id="transfer-type">
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                        <input type="text" id="transfer-recipient" placeholder="Recipient" value="Bob">
+                        <button class="btn btn-primary" onclick="handleTransfer()">Transfer</button>
+                    </div>
+                </div>
             </div>
 
             <div class="panel">
-                <h2>Logs</h2>
-                <div id="logs" class="log-view">
-                    <p class="log-entry system">> Ready.</p>
+                <h2>Unspent Transaction Outputs (UTXOs)</h2>
+                <div class="table-container">
+                    <table class="table">
+                        <thead><tr><th>ID</th><th>Type</th><th>Value</th><th>Status</th></tr></thead>
+                        <tbody id="utxo-body"></tbody>
+                    </table>
                 </div>
+            </div>
+
+            <div class="panel">
+                <h2>HTLC Locks</h2>
+                <div class="actions-grid htlc-actions">
+                    <input type="number" id="htlc-amount" placeholder="Amount" value="50">
+                    <select id="htlc-type"><option value="USD">USD</option><option value="EUR">EUR</option></select>
+                    <input type="text" id="htlc-recipient" placeholder="Recipient" value="Bob">
+                    <input type="text" id="htlc-preimage" placeholder="Secret Preimage" value="secret123">
+                    <input type="number" id="htlc-duration" placeholder="Seconds to expire" value="60">
+                    <button class="btn btn-primary" onclick="handleCreateHTLC()">Create Lock</button>
+                </div>
+                <div class="table-container mt-15">
+                    <table class="table">
+                        <thead><tr><th>Lock ID</th><th>Amount</th><th>Recipient</th><th>Expires In</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="htlc-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUDITOR VIEW -->
+        <div id="view-auditor" class="role-view">
+            <div class="panel">
+                <h2>Auditor Denylist</h2>
+                <div class="actions-grid">
+                    <input type="text" id="denylist-identity" placeholder="Identity (e.g. Charlie)">
+                    <input type="text" id="denylist-reason" placeholder="Reason (e.g. Suspicious)">
+                    <button class="btn btn-danger" onclick="handleAddDenylist()">Block Identity</button>
+                </div>
+                <div class="table-container mt-15">
+                    <table class="table">
+                        <thead><tr><th>Identity</th><th>Reason</th><th>Date Added</th><th>Actions</th></tr></thead>
+                        <tbody id="denylist-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHARED PANELS -->
+        <div class="panel">
+            <h2>Transaction History</h2>
+            <div class="filters" style="margin-bottom: 10px;">
+                <select id="filter-type" onchange="renderHistory()">
+                    <option value="all">All Types</option>
+                    <option value="Issue">Issue</option>
+                    <option value="Transfer">Transfer</option>
+                    <option value="HTLC">HTLC</option>
+                </select>
+                <select id="filter-status" onchange="renderHistory()">
+                    <option value="all">All Status</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead><tr><th>Tx ID</th><th>Type</th><th>Amount</th><th>From / To</th><th>Status</th><th>Time</th></tr></thead>
+                    <tbody id="history-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex-row">
+            <div class="panel half">
+                <h2>Metrics Dashboard</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">ZKP Gen Latency</div>
+                        <div class="metric-value" id="metric-zkp">0 ms</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Commit Latency</div>
+                        <div class="metric-value" id="metric-commit">0 ms</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Proof Size</div>
+                        <div class="metric-value" id="metric-size">0 KB</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Network Load</div>
+                        <div class="metric-value" id="metric-load">Nominal</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel half">
+                <h2>System Logs</h2>
+                <div id="logs" class="log-view"></div>
             </div>
         </div>
     </div>
